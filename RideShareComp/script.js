@@ -54,7 +54,37 @@ function construct_requests() {
 
 const submit_lyft = async (url) => {
     const response = await fetch(url);
+    await console.log(response)
     const response_json = await response.json();
 
     console.log(response_json);
+    for (const ride of response_json.cost_estimates) {
+        if (ride.ride_type == 'lyft') {
+            add_comparison(ride.estimated_duration_seconds / 60, ((ride.estimated_cost_cents_max + ride.estimated_cost_cents_min) / 2) / 100, "Lyft");
+        }
+    }
+}
+
+// time in seconds, cost in dollars, title of ride app being compared
+const add_comparison = (time, cost, name) => {
+    var c = parseFloat(cost);
+    c.toFixed(2);
+    var t = parseFloat(time);
+    t.toFixed(1)
+    $('#comparison_container').append(`
+    <div class="row justify-content-center" style="margin-top: 10px">
+    <div class="col justify-content-center">
+        <div class="card" style="max-width: 510px;">
+            <div class="card-header">
+                <h5 class="card-title">${name}</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Travel Time: ${t.toFixed(1)} minutes</p>
+                <p class="card-text">Cost: $${c.toFixed(2)}</p>
+            </div>
+        </div>
+    </div>
+    
+</div>
+    `);
 }
