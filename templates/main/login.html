@@ -1,0 +1,15 @@
+<title>rideFinder Login</title>
+{% extends 'main/header.html' %}
+
+{% block content %}
+    <br>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button class="btn" type="submit">login</button>
+    </form>
+
+    If you don't already have an account, <a href="/register"><strong>register</strong></a> instead.
+
+{% endblock %}
