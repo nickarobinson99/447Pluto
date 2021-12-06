@@ -40,6 +40,8 @@
 
 
                 document.getElementById('autocomplete').placeholder = 'Enter a place';
+		
+		<!-- These variables store the long lat -->
                 var placeLat = place.geometry.location.lat();
                 var placeLong = place.geometry.location.long();
                 
