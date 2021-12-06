@@ -6,7 +6,6 @@ var src_lat;
 var dst_lng;
 var dst_lat;
 
-var LYFT_URL;
 function initAutocomplete() {
     src_autocomplete = new google.maps.places.Autocomplete(
     document.getElementById('src_autocomplete'),
@@ -50,7 +49,6 @@ function onPlaceChanged_dst() {
 
 function construct_requests() {
     var lyft_url = `https://serene-cove-09211.herokuapp.com/https://www.lyft.com/api/costs?start_lat=${src_lat}&start_lng=${src_lng}&end_lat=${dst_lat}&end_lng=${dst_lng}`
-    LYFT_URL = lyft_url;
     submit_lyft(lyft_url);
 }   
 
