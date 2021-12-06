@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map{
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+    <title>Place Details</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <script src="./index.js"></script>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    
+
+    <form>
+        <input id="autocomplete" placeholder="Enter a place" type="text" />
+            
+    </form>
+
+    <form>
+        <input id="autocomplete2" placeholder="Enter a place" type="text" />
+            
+    </form>
+
+    <input id="clickMe" type="button" value="generate route" onclick="onChangeHandler();" />
+
+    <div id="Lat"></div>
+
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script>
+      function init(){
+        initMap();
+        initAutocomplete();
+        initAutocomplete2();
+      }
+
+        function initMap() {
+  const directionsService = new google.maps.DirectionsService();
+  const directionsRenderer = new google.maps.DirectionsRenderer();
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 7,
+    center: { lat: 41.85, lng: -87.65 },
+  });
+
+  directionsRenderer.setMap(map);
+
+  const onChangeHandler = function () {
+    calculateAndDisplayRoute(directionsService, directionsRenderer);
+  };
+
+  var el = document.getElementById("clickMe");
+  if (el.addEventListener)
+    el.addEventListener("click", onChangeHandler, false);
+else if (el.attachEvent)
+    el.attachEvent('onclick', onChangeHandler);
+}
+
+function calculateAndDisplayRoute(directionsService, directionsRenderer) {
+  var place = autocomplete.getPlace();
+  var place2 = autocomplete2.getPlace();
+  directionsService
+    .route({
+      origin: {
+        query: place.name,
+      },
+      destination: {
+        query: place2.name,
+      },
+      travelMode: google.maps.TravelMode.DRIVING,
+    })
+    .then((response) => {
+      directionsRenderer.setDirections(response);
+    })
+    .catch((e) => window.alert("Directions request failed due to " + status));
+}
+            let autocomplete;
+            let autocomplete2;
+            function initAutocomplete() {
+                autocomplete = new google.maps.places.Autocomplete(
+                document.getElementById('autocomplete'),
+                {
+                    types: ['establishment'],
+                    comonpentRestrictions: {'country': ['AU']},
+                    fields: ['place_id', 'name', 'geometry']
+                });
+
+                autocomplete.addListener('place_changed', onPlaceChanged)
+            }
+
+            function initAutocomplete2() {
+                autocomplete2 = new google.maps.places.Autocomplete(
+                document.getElementById('autocomplete2'),
+                {
+                    types: ['establishment'],
+                    comonpentRestrictions: {'country': ['AU']},
+                    fields: ['place_id', 'name', 'geometry']
+                });
+
+                autocomplete.addListener('place_changed', onPlaceChanged2)
+            }
+
+            function onPlaceChanged() {
+                var place = autocomplete.getPlace();
+
+
+                document.getElementById('autocomplete').placeholder = 'Enter a place';
+            }
+
+            function onPlaceChanged2() {
+                var place = autocomplete2.getPlace();
+
+
+                document.getElementById('autocomplete2').placeholder = 'Enter a place';
+            }
+        </script>
+
+
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWsbhOnRYZpGqmIM-8a8aCMEHTbGO4Mr4&libraries=places&callback=init&v=weekly""
+      async
+    ></script>
+  </body>
+</html>
