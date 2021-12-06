@@ -1,31 +1,62 @@
-let autocomplete;
+let src_autocomplete;
+let dst_autocomplete;
+
+var src_lng;
+var src_lat;
+var dst_lng;
+var dst_lat;
+
+var LYFT_URL;
 function initAutocomplete() {
-    autocomplete = new google.maps.places.Autocomplete(
-    document.getElementById('autocomplete'),
+    src_autocomplete = new google.maps.places.Autocomplete(
+    document.getElementById('src_autocomplete'),
     {
         types: ['establishment'],
         comonpentRestrictions: {'country': ['AU']},
         fields: ['place_id', 'name', 'geometry']
     });
 
-    autocomplete.addListener('place_changed', onPlaceChanged)
+    dst_autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('dst_autocomplete'),
+        {
+            types: ['establishment'],
+            comonpentRestrictions: {'country': ['AU']},
+            fields: ['place_id', 'name', 'geometry']
+        });
+    src_autocomplete.addListener('place_changed', onPlaceChanged_src);
+    dst_autocomplete.addListener('place_changed', onPlaceChanged_dst);
+
 }
 
-function onPlaceChanged() {
-    var place = autocomplete.getPlace();
+function onPlaceChanged_src() {
+    var place = src_autocomplete.getPlace();
+    document.getElementById('src_autocomplete').placeholder = 'Enter a place';
+    src_lat = place.geometry.location.lat();
+    src_lng = place.geometry.location.lng();
+    if ((src_lat && src_lng) && (dst_lat && dst_lng)) {
+        construct_requests();
+    }
+}
 
-    document.getElementById('autocomplete').placeholder = 'Enter a place';
-		
-		//<!-- These variables store the long lat -->
-    var placeLat = place.geometry.location.lat();
-    var placeLong = place.geometry.location.lng();
-    
-    var start_lat = placeLat
-    var start_lng = placeLong
+function onPlaceChanged_dst() {
+    var place = dst_autocomplete.getPlace();
+    document.getElementById('dst_autocomplete').placeholder = 'Enter a place';
+    dst_lat = place.geometry.location.lat();
+    dst_lng = place.geometry.location.lng();
+    if ((src_lat && src_lng) && (dst_lat && dst_lng)) {
+        construct_requests();
+    }
+}
 
-    var end_lat = 0.0
-    var end_lng = 0.0
-                
-    var lyft_url = `https://www.lyft.com/api/costs?start_lat=${start_lat}&start_lng=${start_lng}&end_lat=${end_lat}&end_lng=${end_lng}`
-    console.log(lyft_url)
+function construct_requests() {
+    var lyft_url = `https://serene-cove-09211.herokuapp.com/https://www.lyft.com/api/costs?start_lat=${src_lat}&start_lng=${src_lng}&end_lat=${dst_lat}&end_lng=${dst_lng}`
+    LYFT_URL = lyft_url;
+    submit_lyft(lyft_url);
+}   
+
+const submit_lyft = async (url) => {
+    const response = await fetch(url);
+    const response_json = await response.json();
+
+    console.log(response_json);
 }
