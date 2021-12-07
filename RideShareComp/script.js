@@ -1,3 +1,7 @@
+const TAXI_COST_KM = 1.38;
+const TAXI_COST_BASE = 1.8;
+let DISTANCE_FROM_TAXI;
+
 let src_autocomplete;
 let dst_autocomplete;
 
@@ -5,6 +9,8 @@ var src_lng;
 var src_lat;
 var dst_lng;
 var dst_lat;
+
+var distance_from_taxi_api;
 
 function initAutocomplete() {
     src_autocomplete = new google.maps.places.Autocomplete(
@@ -49,7 +55,9 @@ function onPlaceChanged_dst() {
 
 function construct_requests() {
     var lyft_url = `https://serene-cove-09211.herokuapp.com/https://www.lyft.com/api/costs?start_lat=${src_lat}&start_lng=${src_lng}&end_lat=${dst_lat}&end_lng=${dst_lng}`
+    var taxi_url = `https://route.api.here.com/routing/7.2/calculateroute.json?app_id=WN5ptdhYoHgYROta4bQZ&app_code=7XTPif-nqp4BmHlX5CJzsg&waypoint0=geo!${src_lat},${src_lng}&waypoint1=geo!${dst_lat},${dst_lng}&mode=balanced;car;traffic:disabled&alternatives=0&language=en&routeAttributes=summary,shape&requestId=44564506625241654`
     submit_lyft(lyft_url);
+    submit_taxi(taxi_url);
 }   
 
 const submit_lyft = async (url) => {
@@ -64,7 +72,31 @@ const submit_lyft = async (url) => {
         }
     }
 }
+const submit_taxi = async (url) => {
+    console.log(`submit_taxi called with payload ${url}`)
+    const response = await fetch(url);
+    await console.log(response);
+    const response_json = await response.json();
 
+    console.log(response_json);
+    let summary = await response_json.response.route[0].summary;
+    let cost = TAXI_COST_BASE + ((summary.distance / 1000) * TAXI_COST_KM)
+    let time_min = summary.travelTime / 60
+    DISTANCE_FROM_TAXI = summary.distance;
+    submit_spin();
+    add_comparison(time_min, cost, "Taxi");
+
+}
+
+const submit_spin = async () => {
+    const ASSUMED_SPEED = 11.25 //11.25km/h or 7 mph - probable average speed for most trips
+    const SPIN_BASE_UNLOCK = 1 // $1
+    const SPIN_AVERAGE_PRICE_PER_MINUTE = 0.27 // $0.27/minute
+    let assumed_time = (((DISTANCE_FROM_TAXI / 1000) / ASSUMED_SPEED) * 60);
+    cost = SPIN_BASE_UNLOCK + (assumed_time * SPIN_AVERAGE_PRICE_PER_MINUTE);
+
+    add_comparison(assumed_time, cost, "Spin Scooters")
+}
 // time in seconds, cost in dollars, title of ride app being compared
 const add_comparison = (time, cost, name) => {
     var c = parseFloat(cost);
